@@ -1,7 +1,6 @@
 #pragma once
 #include<SFML/Graphics.hpp>
 
-
 class Player
 {
 public:
@@ -14,6 +13,26 @@ public:
 	}
 	void move()
 	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+		{
+			pos.x -= speed.x;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+		{
+			pos.x += speed.x;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !isJumping)
+		{
+			speed.y = maxYspeed;
+			isJumping = true;
+		}
+		if (isJumping)
+		{
+			Jump();
+			if (speed.y <= -maxYspeed)	//this code must be changed to collision test
+				isJumping = false;
+		}
+
 		body.setPosition(pos);
 	}
 
