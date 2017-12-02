@@ -14,41 +14,24 @@ public:
 private:
 	sf::Texture texture;
 	float jumpSpeed = 10.0f;
-	float gravity = 0.0002f;
-	float accn = 0.0002f;
-	float friction = 0.0002f;
+	float gravity = 0.0001f;
+	float accn = 0.0001f;
+	float friction = 0.0001f;
 	bool isfalling;
+	bool horizontal, vertical;
 public:
 	Player(float size);
 	~Player();
 	void move(sf::RenderWindow &window)
 	{
-		if (speed.y != 0)
+		if (speed.y < -0.0003)
 		{
 			isfalling = true;
 		}
-		if (!Colliding(sf::Vector2f(100.0f, 300.0f), sf::Vector2f(500.0f, 10.0f), window))
-		{
-			speed.y -= gravity;
-			pos.x += speed.x;
-			pos.y -= speed.y;
-		}
-		else
-		{
-			if (isfalling || isJumping)
-			{
-				pos.y -= 0.3f;
-				isJumping = false;
-				isfalling = false;
-				speed.y = 0;
-			}
-			else
-			{
-				std::cout << "__p__";
-				pos.x -= speed.x;
-				speed.x = -speed.x;
-			}
-		}
+
+		collisionBlock(sf::Vector2f(300.0f, 300.0f), sf::Vector2f(100.0f, 110.0f), window);
+		collisionBlock(sf::Vector2f(300.0f, 100.0f), sf::Vector2f(100.0f, 100.0f), window);
+		collisionBlock(sf::Vector2f(100.0f, 400.0f), sf::Vector2f(500.0f, 10.0f), window);
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
 		{
@@ -130,6 +113,35 @@ private:
 		}
 		else
 			return(false);
+	}
+	void collisionBlock(sf::Vector2f block, sf::Vector2f size,sf::RenderWindow &window)
+	{
+
+		if (!Colliding(block, size, window))
+		{
+			speed.y -= gravity;
+			pos.x += speed.x;
+			pos.y -= speed.y;
+		}
+		else
+		{
+			if (isfalling || isJumping)
+			{
+				pos.y += 30.0f*speed.y;
+				if (speed.y<0)
+					isJumping = false;
+				isfalling = false;
+				speed.y = 0;
+				horizontal = true;
+			}
+			else
+			{
+				horizontal = false;
+				pos.x -= 30.0f*speed.x;
+				speed.x = 0;
+			}
+		}
+
 	}
 };
 
