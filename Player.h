@@ -14,7 +14,7 @@ public:
 private:
 	sf::Texture texture;
 	float jumpSpeed = 10.0f;
-	float gravity = 0.0005f;
+	float gravity = 0.0002f;
 	float accn = 0.0002f;
 	float friction = 0.0002f;
 	bool isfalling;
@@ -23,16 +23,11 @@ public:
 	~Player();
 	void move(sf::RenderWindow &window)
 	{
-		if (isfalling)
-			std::cout << " f ";
-		if (isJumping)
-			std::cout << " j ";
 		if (speed.y != 0)
 		{
 			isfalling = true;
 		}
-		
-		if (!Colliding(sf::Vector2f(100.0f, 280.0f), sf::Vector2f(100.0f, 100.0f), window))
+		if (!Colliding(sf::Vector2f(100.0f, 300.0f), sf::Vector2f(500.0f, 10.0f), window))
 		{
 			speed.y -= gravity;
 			pos.x += speed.x;
@@ -42,13 +37,14 @@ public:
 		{
 			if (isfalling || isJumping)
 			{
-				pos.y -= 0.1;
+				pos.y -= 0.3f;
 				isJumping = false;
 				isfalling = false;
 				speed.y = 0;
 			}
 			else
 			{
+				std::cout << "__p__";
 				pos.x -= speed.x;
 				speed.x = -speed.x;
 			}
@@ -126,7 +122,7 @@ private:
 			sy = pos1.y;
 		}
 		sf::Vector2f s = body.getSize();
-		if (pos.x <= lx && pos.x + s.x >= sx && pos.y <= ly && pos.y + s.y >= sy)
+		if (pos.x < lx && pos.x + s.x > sx && pos.y < ly && pos.y + s.y > sy)
 		{
 			rect.setFillColor(sf::Color::Cyan);
 			window.draw(rect);
