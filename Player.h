@@ -15,10 +15,10 @@ private:
 	sf::Texture texture;
 	float jumpSpeed = 10.0f;
 	float gravity = 0.0001f;
-	float accn = 0.0001f;
-	float friction = 0.0001f;
+	float accn = 0.0002f;
+	float friction = 0.0002f;
 	bool isfalling;
-	bool horizontal, vertical;
+	float canvertical;
 public:
 	Player(float size);
 	~Player();
@@ -29,9 +29,10 @@ public:
 			isfalling = true;
 		}
 
-		collisionBlock(sf::Vector2f(300.0f, 300.0f), sf::Vector2f(100.0f, 110.0f), window);
-		collisionBlock(sf::Vector2f(300.0f, 100.0f), sf::Vector2f(100.0f, 100.0f), window);
+		collisionBlock(sf::Vector2f(300.0f, 300.0f), sf::Vector2f(100.0f, 100.0f), window);
 		collisionBlock(sf::Vector2f(100.0f, 400.0f), sf::Vector2f(500.0f, 10.0f), window);
+		collisionBlock(sf::Vector2f(100.0f, 90.0f), sf::Vector2f(10.0f, 320.0f), window);
+		collisionBlock(sf::Vector2f(600.0f, 90.0f), sf::Vector2f(10.0f, 320.0f), window);
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
 		{
@@ -52,21 +53,16 @@ public:
 		{
 			if (speed.x > 0)
 				speed.x -= friction;
-
 		}
-		if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)|| sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))&& !isJumping &&!isfalling)
+		if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)|| sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))&& !isJumping &&!isfalling && canvertical)
 		{
+			std::cout << "k"<<canvertical;
 			speed.y = maxYspeed;
 			isJumping = true;
 		}
 		if (isJumping)
 		{
 			Jump();
-			if (speed.y <= -maxYspeed)	//this code must be changed to collision test
-			{
-				speed.y = 0;
-				isJumping = false;
-			}
 		}
 		body.setPosition(pos);
 	}
@@ -107,7 +103,7 @@ private:
 		sf::Vector2f s = body.getSize();
 		if (pos.x < lx && pos.x + s.x > sx && pos.y < ly && pos.y + s.y > sy)
 		{
-			rect.setFillColor(sf::Color::Cyan);
+			rect.setFillColor(sf::Color::Red);
 			window.draw(rect);
 			return(true);
 		}
@@ -120,25 +116,33 @@ private:
 		if (!Colliding(block, size, window))
 		{
 			speed.y -= gravity;
-			pos.x += speed.x;
 			pos.y -= speed.y;
+			pos.x += speed.x;
 		}
 		else
 		{
-			if (isfalling || isJumping)
+			if (!(isfalling || isJumping))		//vertical collision 
 			{
-				pos.y += 30.0f*speed.y;
-				if (speed.y<0)
-					isJumping = false;
-				isfalling = false;
-				speed.y = 0;
-				horizontal = true;
-			}
-			else
-			{
-				horizontal = false;
-				pos.x -= 30.0f*speed.x;
+				canvertical = false;
+				speed.y -= gravity;
+				pos.y -= speed.y;
+				std::cout << "*";
+				pos.x -= 50.0f*speed.x;
 				speed.x = 0;
+			}
+			
+			if(isfalling||isJumping)			//horizontal collision
+			{ 
+				pos.x += speed.x;
+				canvertical = true;
+				pos.y += 30.0f*speed.y;
+				if (speed.y < 0)
+				{
+					std::cout << "_";
+					isJumping = false;
+					isfalling = false;
+				}
+				speed.y = 0;
 			}
 		}
 
