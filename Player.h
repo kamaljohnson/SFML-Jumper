@@ -16,18 +16,44 @@ private:
 	float jumpSpeed = 10.0f;
 	float gravity = 0.0005f;
 	float accn = 0.0002f;
-	float friction = 0.0003f;
+	float friction = 0.0002f;
+	bool isfalling;
 public:
 	Player(float size);
 	~Player();
 	void move(sf::RenderWindow &window)
 	{
-		if (isColliding(sf::Vector2f(100.0f, 280.0f), sf::Vector2f(100.0f, 100.0f), window))
+		if (isfalling)
+			std::cout << " f ";
+		if (isJumping)
+			std::cout << " j ";
+		if (speed.y != 0)
 		{
-
+			isfalling = true;
 		}
-		pos.x += speed.x;
-		pos.y -= speed.y;
+		
+		if (!Colliding(sf::Vector2f(100.0f, 280.0f), sf::Vector2f(100.0f, 100.0f), window))
+		{
+			speed.y -= gravity;
+			pos.x += speed.x;
+			pos.y -= speed.y;
+		}
+		else
+		{
+			if (isfalling || isJumping)
+			{
+				pos.y -= 0.1;
+				isJumping = false;
+				isfalling = false;
+				speed.y = 0;
+			}
+			else
+			{
+				pos.x -= speed.x;
+				speed.x = -speed.x;
+			}
+		}
+
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
 		{
 			if (speed.x > -maxXspeed)
@@ -47,8 +73,9 @@ public:
 		{
 			if (speed.x > 0)
 				speed.x -= friction;
+
 		}
-		if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)|| sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))&& !isJumping)
+		if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)|| sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))&& !isJumping &&!isfalling)
 		{
 			speed.y = maxYspeed;
 			isJumping = true;
@@ -69,7 +96,7 @@ private:
 	{
 		speed.y -= gravity;
 	}
-	bool isColliding(sf::Vector2f pos1, sf::Vector2f size, sf::RenderWindow &window)
+	bool Colliding(sf::Vector2f pos1, sf::Vector2f size, sf::RenderWindow &window)
 	{
 		sf::Vector2f pos2 = pos1 + size;
 		sf::RectangleShape rect(size);
@@ -99,7 +126,7 @@ private:
 			sy = pos1.y;
 		}
 		sf::Vector2f s = body.getSize();
-		if (pos.x < lx && pos.x + s.x > sx && pos.y < ly && pos.y + s.y > sy)
+		if (pos.x <= lx && pos.x + s.x >= sx && pos.y <= ly && pos.y + s.y >= sy)
 		{
 			rect.setFillColor(sf::Color::Cyan);
 			window.draw(rect);
